@@ -20,7 +20,7 @@
                 jersey.config.server.provider.packages
                 <!--org.glassfish.jersey.servlet.ServletContainer-->
             </param-name>
-            <param-value>service</param-value>
+            <param-value>service, filter</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>

@@ -30,6 +30,7 @@ import javax.persistence.Table;
 @Table(name = "Quiz")
 @NamedQueries({
     @NamedQuery(name="Quiz.getAll", query="select q from Quiz q"),
+    @NamedQuery(name="Quiz.getInPeriod", query="select q from Quiz q where q.date > :start AND q.date < :end"),
 })
 public class Quiz implements Serializable {
  

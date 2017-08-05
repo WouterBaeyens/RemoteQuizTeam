@@ -24,6 +24,10 @@ public interface QuizRepositoryUI {
 
     List<Quiz> getAllQuizzes();
 
+    //A quiz is considered active if it has not passed, and it occurs less than 
+    //a year from now
+    public List<Quiz> getAllActiveQuizzes();
+    
     List<Team> getAllTeams();
 
     Quiz getQuiz(long id);

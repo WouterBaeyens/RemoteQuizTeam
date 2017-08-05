@@ -7,7 +7,11 @@ package database;
 
 import domain.Quiz;
 import domain.Team;
+import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
@@ -144,6 +148,26 @@ public class QuizDb implements QuizRepositoryUI {
         public List<Quiz> getAllQuizzes() {
         try {
             Query query = em.createNamedQuery("Quiz.getAll");
+            List<Quiz> quizzes = query.getResultList();
+            return quizzes;
+        } catch (NoResultException e) {
+            return new ArrayList<>();
+        } catch (Exception e) {
+            throw new DbException(e.getMessage(), e);
+        }
+    }
+        
+    //A quiz is considered active if it has not passed, and it occurs less than 
+    //a year from now
+    @Override
+        public List<Quiz> getAllActiveQuizzes(){
+        try{       
+            Query query = em.createNamedQuery("Quiz.getInPeriod");
+            LocalDate now = LocalDate.now();
+            LocalDate inOneYear = LocalDate.now().plusYears(1);
+            query.setParameter("start", Date.valueOf(now));
+            query.setParameter("end", Date.valueOf(inOneYear));
+            //date.
             List<Quiz> quizzes = query.getResultList();
             return quizzes;
         } catch (NoResultException e) {

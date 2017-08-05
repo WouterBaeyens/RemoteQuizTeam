@@ -11,6 +11,7 @@ import database.QuizDb;
 import database.QuizRepositoryUI;
 import domain.Quiz;
 import domain.Team;
+import filter.Authenticate;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,13 +37,13 @@ import javax.ws.rs.core.Response;
  * @author Wouter
  */
 @Path("/")
-public class RestService {
+public class UNUSEDRestService {
     
         @EJB
         private QuizRepositoryUI repository;
         //private QuizRepositoryUI repository = new QuizDb();
     
-    	@GET
+    	/*@GET
 	@Path("/{param: allquizzes|quizzes}")
         	//@Produces("text/plain")
         @Produces(MediaType.APPLICATION_JSON)
@@ -52,7 +53,16 @@ public class RestService {
         }
         
         @GET
-        @Path("quiz/{quizId}")
+	@Path("/{param: allactivequizzes|activequizzes}")
+        	//@Produces("text/plain")
+        @Produces(MediaType.APPLICATION_JSON)
+        public List<Quiz> getAllActiveQuizzes(){
+          List<Quiz> quizzes = repository.getAllActiveQuizzes();
+          return quizzes;
+        }
+        
+        @GET
+        @Path("quizz/{quizId}")
         @Produces(MediaType.APPLICATION_JSON)
         public Quiz getQuiz(@PathParam("quizId") long quizId) {
             if(repository.getQuiz(quizId) == null){
@@ -62,7 +72,7 @@ public class RestService {
         }
 
         @POST
-        @Path("quiz")
+        @Path("quizz")
         @Consumes(MediaType.APPLICATION_JSON)
         public void update(Quiz quiz) {
             if(repository.getQuiz(quiz.getId()) == null){
@@ -78,7 +88,7 @@ public class RestService {
         }       
         
         @DELETE
-        @Path("quiz/{quizId}")
+        @Path("quizz/{quizId}")
         public void removeQuiz(@PathParam("quizId") long quizId) {
             if(repository.getQuiz(quizId) == null){
                 throw new IllegalArgumentException("This quiz does not exist");
@@ -87,8 +97,10 @@ public class RestService {
         }
         
         @POST
-        @Path("quiz/{quizId}/subscribe")
+        @Path("quizz/{quizId}/subscribe")
+        @Authenticate
         public void addTeamToQuiz(@PathParam("quizId") long quizId, @BeanParam Team team) {
+            System.out.println("STARTING SUBSCRIPTION");
             Team storedTeam = null;
             if(team.getId() > 0){
                 storedTeam = repository.getTeam(team.getId());
@@ -108,7 +120,7 @@ public class RestService {
         
         
         @POST
-        @Path("quiz/{quizId}/unsubscribe")
+        @Path("quizz/{quizId}/unsubscribe")
         public void removeTeamFromQuiz(@BeanParam Team team, @PathParam("quizId") long quizId) {
             Team storedTeam = null;
             if(team.getId() > 0){
@@ -125,11 +137,11 @@ public class RestService {
             Quiz storedQuiz = repository.getQuiz(quizId);
             storedQuiz.removeTeam(storedTeam);
             repository.mergeQuiz(storedQuiz);
-        }
+        }*/
         
                 
-        @POST
-        @Path("team")
+      /*  @POST
+        @Path("teamm")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
         public Response update(Team team) {
@@ -144,7 +156,7 @@ public class RestService {
         }
         
         @POST
-        @Path("team")
+        @Path("teamm")
         @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
         @Produces(MediaType.APPLICATION_JSON)
         public Response update_FormEncoded(@BeanParam Team team) {
@@ -152,7 +164,7 @@ public class RestService {
         }
         
         @GET
-        @Path("team/{teamId}")
+        @Path("teamm/{teamId}")
         @Produces(MediaType.APPLICATION_JSON)
         public Response getTeam(@PathParam("teamId") long teamId) {
             Team storedTeam = repository.getTeam(teamId);
@@ -160,7 +172,7 @@ public class RestService {
         }
         
         @GET
-        @Path("team/byName")
+        @Path("teamm/byName")
         @Produces(MediaType.APPLICATION_JSON)
         public Response getTeamByName(@QueryParam("name") String teamName) {
             Team storedTeam = repository.getTeamByName(teamName);
@@ -180,8 +192,8 @@ public class RestService {
             try {
                 return mapper.writeValueAsString(o);
             } catch (JsonProcessingException ex) {
-                Logger.getLogger(RestService.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(UNUSEDRestService.class.getName()).log(Level.SEVERE, null, ex);
                 return "errors : error parsing json - " + ex.getLocalizedMessage();
             }
-        }
+        }*/
 }
