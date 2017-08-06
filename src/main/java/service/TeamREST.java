@@ -39,22 +39,21 @@ public class TeamREST {
             @POST
         @Path("/")
         @Consumes(MediaType.APPLICATION_JSON)
-        @Produces(MediaType.APPLICATION_JSON)
         public Response update(Team team) {
             Team storedTeam = repository.getTeam(team.getId());
             if(storedTeam == null){
                 storedTeam = repository.addTeam(team);
+            return Response.ok("Team added").build();
             } else {
             storedTeam.setName(team.getName());
             repository.mergeTeam(storedTeam);
+            return Response.ok("Team updated").build();
             }
-            return Response.ok(convertToJson(storedTeam), MediaType.APPLICATION_JSON).build();
         }
         
         @POST
         @Path("/")
         @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-        @Produces(MediaType.APPLICATION_JSON)
         public Response update_FormEncoded(@BeanParam Team team) {
             return update(team);
         }
@@ -64,6 +63,9 @@ public class TeamREST {
         @Produces(MediaType.APPLICATION_JSON)
         public Response getTeam(@PathParam("teamId") long teamId) {
             Team storedTeam = repository.getTeam(teamId);
+            if(storedTeam == null){
+                return Response.status(404).entity("No team found for id: " + teamId).build();
+            }
             return Response.ok(convertToJson(storedTeam), MediaType.APPLICATION_JSON).build();
         }
         
@@ -72,6 +74,9 @@ public class TeamREST {
         @Produces(MediaType.APPLICATION_JSON)
         public Response getTeamByName(@QueryParam("name") String teamName) {
             Team storedTeam = repository.getTeamByName(teamName);
+            if(storedTeam == null){
+                return Response.status(404).entity("No team found for name: " + teamName).build();
+            }
             return Response.ok(convertToJson(storedTeam), MediaType.APPLICATION_JSON).build();
         }
         

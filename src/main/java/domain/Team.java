@@ -27,6 +27,7 @@ import javax.ws.rs.FormParam;
 })
 public class Team implements Serializable {
     
+    @FormParam("id")
     @Id @GeneratedValue(strategy=AUTO)
     private long id;
     

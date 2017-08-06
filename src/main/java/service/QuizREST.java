@@ -5,6 +5,8 @@
  */
 package service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import database.QuizRepositoryUI;
 import domain.Quiz;
 import domain.Team;
@@ -21,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  *
@@ -47,26 +50,30 @@ public class QuizREST {
             //@Produces("text/plain")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Quiz> getAllActiveQuizzes(){
-      List<Quiz> quizzes = repository.getAllActiveQuizzes();
+        List<Quiz> quizzes = repository.getAllActiveQuizzes();
       return quizzes;
     }
     
         @GET
     @Path("/{quizId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Quiz getQuiz(@PathParam("quizId") long quizId) {
+    public Response getQuiz(@PathParam("quizId") long quizId) throws JsonProcessingException {
         if(repository.getQuiz(quizId) == null){
-            throw new IllegalArgumentException("This quiz does not exist");
+            return Response.status(404).entity("No quiz found for id: " + quizId).build();
+            //throw new IllegalArgumentException("This quiz does not exist");
         }
-        return repository.getQuiz(quizId);
+        Quiz quiz = repository.getQuiz(quizId);
+        String json = new ObjectMapper().writeValueAsString(quiz);
+        return Response.ok(json, MediaType.APPLICATION_JSON).build();
     }
 
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void update(Quiz quiz) {
+    public Response update(Quiz quiz) {
         if(repository.getQuiz(quiz.getId()) == null){
             repository.addQuiz(quiz);
+            return Response.ok("New quiz added").build();
         } else{
             Quiz quizToUpdate = repository.getQuiz(quiz.getId());
             quizToUpdate.setAdress(quiz.getAdress());
@@ -74,23 +81,24 @@ public class QuizREST {
             quizToUpdate.setMinPeople(quiz.getMinPeople());
             quizToUpdate.setName(quiz.getName());
             repository.mergeQuiz(quizToUpdate);
+            return Response.ok("Quiz updated").build();
         }
     } 
         
     @DELETE
     @Path("/{quizId}")
-    public void removeQuiz(@PathParam("quizId") long quizId) {
+    public Response removeQuiz(@PathParam("quizId") long quizId) {
         if(repository.getQuiz(quizId) == null){
-            throw new IllegalArgumentException("This quiz does not exist");
+            return Response.status(404).entity("No quiz found for id: " + quizId).build();
         }
         repository.removeQuiz(repository.getQuiz(quizId));
+        return Response.ok("Quiz succesfully deleted").build();
     }
     
     @POST
     @Path("/{quizId}/subscribe")
     @Authenticate
-    public void addTeamToQuiz(@PathParam("quizId") long quizId, @BeanParam Team team) {
-        System.out.println("STARTING SUBSCRIPTION");
+    public Response addTeamToQuiz(@PathParam("quizId") long quizId, @BeanParam Team team) {
         Team storedTeam = null;
         if(team.getId() > 0){
             storedTeam = repository.getTeam(team.getId());
@@ -98,19 +106,21 @@ public class QuizREST {
             storedTeam = repository.getTeamByName(team.getName());
         }
         if(repository.getQuiz(quizId) == null){
-            throw new IllegalArgumentException("This quiz does not exist");
+            return Response.status(404).entity("No quiz found for id: " + quizId).build();
         }
         if(storedTeam == null){
-            throw new IllegalArgumentException("This team is not found in the database");
+            return Response.status(404).entity("No team found for id: " + team.getId() + " (or name: " + team.getName() + ")").build();
         }
         Quiz storedQuiz = repository.getQuiz(quizId);
         storedQuiz.addTeam(storedTeam);
         repository.mergeQuiz(storedQuiz);
+        return Response.ok("Team succesfully subscribed to quiz").build();
     }
     
     @POST
     @Path("/{quizId}/unsubscribe")
-    public void removeTeamFromQuiz(@BeanParam Team team, @PathParam("quizId") long quizId) {
+    @Authenticate
+    public Response removeTeamFromQuiz(@BeanParam Team team, @PathParam("quizId") long quizId) {
         Team storedTeam = null;
         if(team.getId() > 0){
             storedTeam = repository.getTeam(team.getId());
@@ -118,13 +128,14 @@ public class QuizREST {
             storedTeam = repository.getTeamByName(team.getName());
         }
         if(repository.getQuiz(quizId) == null){
-            throw new IllegalArgumentException("This quiz does not exist");
+            return Response.status(404).entity("No quiz found for id: " + quizId).build();
         }
         if(storedTeam == null){
-            throw new IllegalArgumentException("This team is not found in the database");
+            return Response.status(404).entity("No team found for id: " + team.getId() + " (or name: " + team.getName() + ")").build();
         }
         Quiz storedQuiz = repository.getQuiz(quizId);
         storedQuiz.removeTeam(storedTeam);
         repository.mergeQuiz(storedQuiz);
+        return Response.ok("Team succesfully unsubscribed from quiz").build();
     }
 }

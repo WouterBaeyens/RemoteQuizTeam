@@ -52,7 +52,9 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 req.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("Invalid authorization").build());
                 return;
             }
-            isUserNamePasswordCombinationValid(authCredentials);
+            if(!isUserNamePasswordCombinationValid(authCredentials)){
+                req.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("Invalid authorization").build());
+            }
             System.out.println("SUCCES");
     }
 
@@ -62,7 +64,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 Charset.forName("UTF-8"));
         // credentials = username:password
         final String[] values = credentials.split(":",2);
-        return USERNAME_PASSWORD_COMBINATIONS.get(values[0]).equals(values[1]);
+        return USERNAME_PASSWORD_COMBINATIONS.get(values[0]) != null && USERNAME_PASSWORD_COMBINATIONS.get(values[0]).equals(values[1]);
     }
 
     

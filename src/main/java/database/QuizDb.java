@@ -107,13 +107,13 @@ public class QuizDb implements QuizRepositoryUI {
     
     @Override
     public void removeTeam(Team team) {
-        Team p = getTeam(team.getId());
-        if (p == null) {
+        Team t = getTeam(team.getId());
+        if (t == null) {
             throw new DbException("[Err. to-be-removed person is not yet in the database: " + team + "] ");
         }
         try {
             //ut.begin();
-            em.remove(team);
+            em.remove(t);
             //ut.commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive())
@@ -202,7 +202,7 @@ public class QuizDb implements QuizRepositoryUI {
         }
         try {
             //ut.begin();
-            em.remove(quiz);
+            em.remove(q);
             //ut.commit();
         } catch (Exception e) {
             if (em.getTransaction().isActive())
